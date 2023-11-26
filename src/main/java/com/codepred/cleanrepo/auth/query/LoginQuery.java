@@ -4,8 +4,6 @@ import com.codepred.cleanrepo.account.value_object.UserEmail;
 import com.codepred.cleanrepo.account.value_object.RawPassword;
 import com.codepred.cleanrepo.common.SelfValidating;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter

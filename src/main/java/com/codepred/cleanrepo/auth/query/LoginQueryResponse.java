@@ -3,7 +3,6 @@ package com.codepred.cleanrepo.auth.query;
 import com.codepred.cleanrepo.auth.value_object.Jwt;
 import com.codepred.cleanrepo.common.SelfValidating;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
