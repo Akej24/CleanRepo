@@ -8,6 +8,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,16 +19,22 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 class LoginFilterConfig extends OncePerRequestFilter {
 
+    @Autowired
+    @Qualifier("handlerExceptionResolver")
+    private HandlerExceptionResolver exceptionResolver;
     private final AccountCredentialsRepository accountCredentialsRepository;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+
 
     @Override
     protected void doFilterInternal(
@@ -33,18 +42,23 @@ class LoginFilterConfig extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
-        String authHeader = request.getHeader("Authorization");
-        if (!validateAuthHeader(request, response, filterChain, authHeader)) return;
+        try {
+            String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+            if (!validateAuthHeader(request, response, filterChain, authHeader)) return;
 
-        Jwt jwtFromHeader = Jwt.from(authHeader.substring(7));
-        String jwtEmail = jwtService.extractUserEmailFromJwt(jwtFromHeader);
+            Jwt jwtFromHeader = Jwt.from(authHeader.substring(7));
+            Optional<String> jwtEmail = jwtService.extractUserEmailFromJwt(jwtFromHeader);
+            if(jwtEmail.isEmpty()) throw new InvalidJwtException();
 
-        var userDetails = this.userDetailsService.loadUserByUsername(jwtEmail);
-        var accountCredentials = getUserCredentials(jwtEmail);
+            var userDetails = this.userDetailsService.loadUserByUsername(jwtEmail.get());
+            var accountCredentials = getUserCredentials(jwtEmail.get());
 
-        if (!jwtService.validateJwt(accountCredentials, jwtFromHeader)) throw new InvalidJwtException();
-        setAuthTokenToSecurityContext(request, userDetails, accountCredentials);
-        filterChain.doFilter(request, response);
+            if (!jwtService.validateJwt(accountCredentials, jwtFromHeader)) throw new InvalidJwtException();
+            setAuthTokenToSecurityContext(request, userDetails, accountCredentials);
+            filterChain.doFilter(request, response);
+        } catch(InvalidJwtException e) {
+            exceptionResolver.resolveException(request, response, null, e);
+        }
     }
 
     private boolean validateAuthHeader(HttpServletRequest request,

@@ -3,6 +3,7 @@ package com.codepred.cleanrepo.auth;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
+import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.codepred.cleanrepo.auth.value_object.Jwt;
@@ -49,7 +50,11 @@ class JwtService{
         }
     }
 
-    public String extractUserEmailFromJwt(Jwt jwt) {
-        return JWT.decode(jwt.jwt()).getSubject();
+    public Optional<String> extractUserEmailFromJwt(Jwt jwt) {
+        try {
+            return Optional.of(JWT.decode(jwt.jwt()).getSubject());
+        } catch(JWTDecodeException e) {
+            return Optional.empty();
+        }
     }
 }

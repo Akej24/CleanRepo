@@ -5,7 +5,6 @@ import com.codepred.cleanrepo.auth.exception.GenericAuthenticationException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -26,8 +25,8 @@ class ErrorResponseController {
                 .map(violation -> new ErrorDto(getConstraintViolationField(violation), violation.getMessage()))
                 .collect(Collectors.toList());
 
-        ErrorResponse errorResponse = ErrorResponse.builder().errors(errors).build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        var errorResponse = ErrorResponse.builder().errors(errors).build();
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 
     @ExceptionHandler({
@@ -39,8 +38,8 @@ class ErrorResponseController {
         List<ErrorDto> errors = List.of(ErrorDto.builder()
                 .message(exception.getMessage())
                 .build());
-        ErrorResponse errorResponse = ErrorResponse.builder().errors(errors).build();
-        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+        var errorResponse = ErrorResponse.builder().errors(errors).build();
+        return ResponseEntity.badRequest().body(errorResponse);
     }
 
     private String getConstraintViolationField(ConstraintViolation<?> violation) {

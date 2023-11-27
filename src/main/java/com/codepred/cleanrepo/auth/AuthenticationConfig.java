@@ -3,8 +3,12 @@ package com.codepred.cleanrepo.auth;
 import com.codepred.cleanrepo.auth.exception.UserEmailNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpCookie;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -24,6 +28,9 @@ import java.util.Collections;
 class AuthenticationConfig {
 
     private final AccountCredentialsRepository accountCredentialsRepository;
+
+    @Value("${security.jwt.cookieName}")
+    private String cookieName;
 
     @Bean
     public UserDetailsService userDetailsService() {
@@ -55,9 +62,11 @@ class AuthenticationConfig {
     @Bean
     LogoutHandler logoutHandler() {
         return (request, response, authentication) -> {
-            String authHeader = request.getHeader("Authorization");
+            String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
             if (authHeader == null ||!authHeader.startsWith("Bearer ")) return;
             SecurityContextHolder.clearContext();
+            HttpCookie cookie = ResponseCookie.from(cookieName, "").path("/").build();
+            response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
         };
     }
 
