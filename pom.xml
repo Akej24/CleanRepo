@@ -11,12 +11,16 @@
 
 	<groupId>com.codepred</groupId>
 	<artifactId>cleanrepo</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
+	<packaging>jar</packaging>
 	<name>CleanRepo</name>
 	<description>Clean repository prepared for future projects (with MySQL), insert here right description</description>
 
 	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<java.version>17</java.version>
+		<start-class>codepred.cleanrepo.CleanRepoApplication</start-class>
 	</properties>
 
 	<dependencies>
