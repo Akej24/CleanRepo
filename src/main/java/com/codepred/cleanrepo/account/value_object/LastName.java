@@ -1,7 +1,7 @@
 package com.codepred.cleanrepo.account.value_object;
 
 import jakarta.persistence.Embeddable;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.io.Serializable;
@@ -13,7 +13,7 @@ import java.io.Serializable;
 @EqualsAndHashCode
 public class LastName implements Serializable {
 
-    @NotNull(message = "Last name cannot be blank")
+    @NotBlank(message = "Last name cannot be blank")
     private String lastName;
 
 }

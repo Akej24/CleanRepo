@@ -7,8 +7,6 @@ import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import com.codepred.cleanrepo.auth.value_object.Jwt;
-import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +14,6 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Service
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
 class JwtService{
 
     @Value("${security.jwt.secretKey}")
@@ -31,7 +28,7 @@ class JwtService{
                     .withExpiresAt(Instant.now().plusSeconds(60 * 60 * 24)) //24h
                     .sign(Algorithm.HMAC256(secretKey));
             return Optional.of(Jwt.from(jwt));
-        } catch (JWTCreationException exception) {
+        } catch (JWTCreationException | NullPointerException exception) {
             return Optional.empty();
         }
     }

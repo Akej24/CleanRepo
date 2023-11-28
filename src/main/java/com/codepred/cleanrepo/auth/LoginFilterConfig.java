@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpHeaders;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.util.Optional;
 
 @Component
+@Profile("!without-security")
 @RequiredArgsConstructor
 class LoginFilterConfig extends OncePerRequestFilter {
 
@@ -34,7 +36,6 @@ class LoginFilterConfig extends OncePerRequestFilter {
     private final AccountCredentialsRepository accountCredentialsRepository;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-
 
     @Override
     protected void doFilterInternal(
